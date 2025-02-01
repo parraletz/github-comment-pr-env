@@ -1,15 +1,19 @@
 #! /usr/bin/env node
 import { Octokit } from '@octokit/rest'
 
-const owner = process.env.REPO_OWNER || process.env.PLUGIN_REPO_OWNER
+const owner =
+  process.env.REPO_OWNER || process.env.PLUGIN_REPO_OWNER || 'parraletz'
 const repo = process.env.REPO_NAME || process.env.PLUGIN_REPO_NAME
-const pull_number: number =
-  parseInt(process.env.PR_NUMBER) || parseInt(process.env.PLUGIN_PR_NUMBER)
-const message: string = process.env.PR_MESSAGE || process.env.PLUGIN_PR_MESSAGE
-const githubToken: string =
-  process.env.GITHUB_TOKEN || process.env.PLUGIN_GITHUB_TOKEN
 
-const commitSha = process.env.COMMIT_SHA || process.env.PLUGIN_COMMIT_SHA
+const pull_number: number =
+  parseInt(process.env.PR_NUMBER ?? '') ||
+  parseInt(process.env.PLUGIN_PR_NUMBER ?? '')
+const message: string =
+  process.env.PR_MESSAGE || process.env.PLUGIN_PR_MESSAGE || ''
+const githubToken: string =
+  process.env.GITHUB_TOKEN || process.env.PLUGIN_GITHUB_TOKEN || ''
+
+const commitSha = process.env.COMMIT_SHA || process.env.PLUGIN_COMMIT_SHA || ''
 
 const octokit = new Octokit({ auth: githubToken })
 
@@ -58,7 +62,7 @@ export async function checkAndCreateComment(
     }
   }
 
-  if (rocketComment) {
+  if (rocketComment?.body) {
     const updatedBody = rocketComment.body.replace(
       /Latest commit \*\*\[.*?\]\(.*?\)\*\*/i,
       `Latest commit **[${commitSha}](https://github.com/${owner}/${repo}/commit/${commitSha})**`
@@ -86,6 +90,10 @@ export async function checkAndCreateComment(
     })
     console.log('Comment created')
   }
+}
+
+if (!repo) {
+  throw new Error('Repository name is required')
 }
 
 checkAndCreateComment(owner, repo, pull_number, message, commitSha)
