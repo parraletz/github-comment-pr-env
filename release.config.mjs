@@ -10,13 +10,7 @@ export default {
     [
       '@semantic-release-plus/docker',
       {
-        name: 'parraletz/add-reviewers'
-      }
-    ],
-    [
-      '@semantic-release-plus/docker',
-      {
-        name: 'occmundial/add-reviewers'
+        name: 'parraletz/github-comment-pr-env'
       }
     ],
     '@semantic-release/github',

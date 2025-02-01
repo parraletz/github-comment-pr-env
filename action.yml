@@ -1,30 +1,31 @@
-name: 'add-code-reviewers'
-description: 'Action to add reviews to a pull request'
-author: 'Alex Parra'
-
-runs:
-  using: docker
-  image: 'Dockerfile'
-  args:
-    - ${{ inputs.token }}
-    - ${{ inputs.reviewers-file-path }}
-    - ${{ inputs.number }}
+name: "PR Preview Commenter"
+description: "Posts or updates a comment in a PR with a link to the preview environment"
+author: "Alex Parra"
 
 inputs:
-  token:
-    description: 'GitHub Token'
+  github_token:
+    description: "GitHub token for authentication"
     required: true
-  reviewers-file-path:
-    description: 'Reviewers file'
+  repo_owner:
+    description: "Repository owner"
+    required: false
+  repo_name:
+    description: "Repository name"
     required: true
-  number:
-    description: 'Pull request number'
+  pr_number:
+    description: "Pull request number"
+    required: true
+  pr_message:
+    description: "Preview environment message"
+    required: true
+  commit_sha:
+    description: "Commit SHA"
     required: true
 
-outputs:
-  reviewers:
-    description: 'Reviewers added to the pull request'
+runs:
+  using: "node20"
+  main: "dist/index.js"
 
 branding:
-  icon: 'thumbs-up'
-  color: 'blue'
+  icon: "message-square"
+  color: "blue"
