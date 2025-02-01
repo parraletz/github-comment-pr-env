@@ -75,7 +75,7 @@ export async function checkAndCreateComment(
     }
   }
   core.info(`Checking existing comments in PR #${pull_number}`)
-  if (rocketComment) {
+  if (rocketComment && rocketComment.body) {
     const updatedBody = rocketComment.body.replace(
       /Latest commit \*\*\[.*?\]\(.*?\)\*\*/i,
       `Latest commit **[${commitSha}](https://github.com/${owner}/${repo}/commit/${commitSha})**`
