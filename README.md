@@ -1,65 +1,46 @@
-# GitHub Action: Request Reviewers
+ # PR Preview Commenter
 
-This GitHub Action automatically requests reviewers for a pull request based on a specified YAML file.
-
-## Prerequisites
-
-- Node.js
-- GitHub repository with a pull request
-
-## Installation
-
-1. Clone the repository:
-    ```sh
-    git clone <repository-url>
-    cd <repository-directory>
-    ```
-
-2. Install dependencies:
-    ```sh
-    npm install
-    ```
+This GitHub Action posts or updates a comment in a pull request (PR) with a link to the preview environment. 
 
 ## Usage
 
-1. Create a `.github/workflows/request-reviewers.yml` file in your repository with the following content:
-    ```yaml
-    name: Request Reviewers
+To use the action, you need to define it in your workflow `.yml` file within the `.github/workflows` directory in your repository.
 
-    on:
-      pull_request:
-        types: [opened]
+```yaml
+jobs:
+  preview_comment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+    - name: Post PR Preview Comment
+      uses: ./  # Use the local action defined in your repository
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        repo_owner: ${{ github.repository_owner }}
+        repo_name: ${{ github.event.repository.name }}
+        pr_number: ${{ github.event.pull_request.number }}
+        pr_message: "Your preview environment is ready!"
+        commit_sha: ${{ github.sha }}
+```
 
-    jobs:
-      request-reviewers:
-        runs-on: ubuntu-latest
-        steps:
-          - uses: actions/checkout@v2
-          - name: Request Reviewers
-            uses: ./
-            with:
-              repo-token: \${{ secrets.GITHUB_TOKEN }}
-              reviewers-file-path: 'path/to/reviewers.yml'
-    ```
+## Inputs
 
-2. Create a `reviewers.yml` file in your repository with the following content:
-    ```yaml
-    reviewers:
-      - reviewer1
-      - reviewer2
-      - reviewer3
-    ```
+- **`github_token`**: (Required) GitHub token for authentication. Typically set to `${{ secrets.GITHUB_TOKEN }}`.
+- **`repo_owner`**: (Optional) The owner of the repository. If not provided, defaults to the context repository owner.
+- **`repo_name`**: (Required) The name of the repository.
+- **`pr_number`**: (Required) The pull request number.
+- **`pr_message`**: (Required) The message to include in the PR comment about the preview environment.
+- **`commit_sha`**: (Required) The commit SHA related to the preview environment.
 
-3. Push the changes to your repository:
-    ```sh
-    git add .github/workflows/request-reviewers.yml reviewers.yml
-    git commit -m "Add GitHub Action to request reviewers"
-    git push origin main
-    ```
+## Author
 
-## Example
+Alex Parra
 
-When a pull request is opened, this action will read the `reviewers.yml` file and request the specified reviewers for the pull request.
+## Branding
+
+- **Icon**: `message-square`
+- **Color**: `blue`
 
 ## License
 
