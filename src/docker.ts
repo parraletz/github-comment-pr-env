@@ -1,8 +1,7 @@
 #! /usr/bin/env node
 import { Octokit } from '@octokit/rest'
 
-const owner =
-  process.env.REPO_OWNER || process.env.PLUGIN_REPO_OWNER || 'occmundial'
+const owner = process.env.REPO_OWNER || process.env.PLUGIN_REPO_OWNER
 const repo = process.env.REPO_NAME || process.env.PLUGIN_REPO_NAME
 const pull_number: number =
   parseInt(process.env.PR_NUMBER) || parseInt(process.env.PLUGIN_PR_NUMBER)
