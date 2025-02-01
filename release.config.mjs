@@ -7,12 +7,6 @@ export default {
     '@semantic-release/commit-analyzer',
     '@semantic-release/release-notes-generator',
     '@semantic-release/changelog',
-    [
-      '@semantic-release-plus/docker',
-      {
-        name: 'parraletz/github-comment-pr-env'
-      }
-    ],
     '@semantic-release/github',
     [
       '@semantic-release/exec',
