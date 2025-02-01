@@ -1,6 +1,6 @@
 {
   "name": "add-reviewers-action",
-  "version": "1.2.0",
+  "version": "1.0.0",
   "description": "",
   "main": "dist/docker.js",
   "scripts": {
