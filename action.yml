@@ -6,8 +6,11 @@ inputs:
   github_token:
     description: "GitHub token for authentication"
     required: true
-  preview_url:
-    description: "Preview environment message"
+  message:
+    description: "Message to be posted in the comment"
+    required: false
+  repo_name:
+    description: "Repository name"
     required: false
 
 

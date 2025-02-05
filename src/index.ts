@@ -2,23 +2,19 @@ import * as core from '@actions/core'
 import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 
-
-const owner = process.env.REPO_OWNER || process.env.PLUGIN_REPO_OWNER || github.context.repo.owner
-const repo =
-  process.env.REPO_NAME ||
-  process.env.PLUGIN_REPO_NAME ||
-  github.context.repo.repo
+const context = github.context
+const { repo, owner } = context.repo
 
 const pull_number =
   process.env.PR_NUMBER ||
   process.env.PLUGIN_PR_NUMBER ||
-  github.context.payload.pull_request?.number || github.context.payload.issue?.number
+  github.context.payload.pull_request?.number ||
+  github.context.payload.issue?.number
 
 const message: string =
   process.env.PR_MESSAGE ||
   process.env.PLUGIN_PR_MESSAGE ||
-  core.getInput('preview_url')
-
+  core.getInput('message')
 
 const githubToken: string =
   process.env.GITHUB_TOKEN ||
@@ -26,18 +22,13 @@ const githubToken: string =
   core.getInput('github_token')
 
 const commitSha =
-  process.env.COMMIT_SHA ||
-  process.env.PLUGIN_COMMIT_SHA ||
-  github.context.sha
-
-
-
+  process.env.COMMIT_SHA || process.env.PLUGIN_COMMIT_SHA || github.context.sha
 
 const octokit = new Octokit({ auth: githubToken })
 
 const isValidUrl = (url?: string): boolean => {
-  return !!url && /^(https?:\/\/)/.test(url);
-};
+  return !!url && /^(https?:\/\/)/.test(url)
+}
 
 const createMessagePreviewEnvironment = (
   commitSha?: string,
@@ -45,10 +36,9 @@ const createMessagePreviewEnvironment = (
   msg?: string,
   owner?: string
 ): string => {
-
   if (commitSha) {
     if (!isValidUrl(msg)) {
-      throw new Error("Invalid URL provided for msg");
+      throw new Error('Invalid URL provided for msg')
     }
 
     const message = `
@@ -59,11 +49,11 @@ const createMessagePreviewEnvironment = (
     | 🔨 **Latest commit** | [${commitSha.substring(0, 7)}](https://github.com/${owner}/${repo}/commit/${commitSha.substring(0, 7)})                                                    |
     | 😎 **Deploy Preview** | [${msg}](${msg})     |
     `
-    return message;
+    return message
   }
 
-  return msg ?? '';
-};
+  return msg ?? ''
+}
 
 export async function checkAndCreateComment(
   owner: string,
