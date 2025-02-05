@@ -1,51 +1,69 @@
 import * as core from '@actions/core'
+import * as github from '@actions/github'
 import { Octokit } from '@octokit/rest'
 
-const owner =
-  process.env.REPO_OWNER ||
-  process.env.PLUGIN_REPO_OWNER ||
-  core.getInput('repo-owner')
+
+const owner = process.env.REPO_OWNER || process.env.PLUGIN_REPO_OWNER || github.context.repo.owner
 const repo =
   process.env.REPO_NAME ||
   process.env.PLUGIN_REPO_NAME ||
-  core.getInput('repo-name')
-const pull_number: number = parseInt(
+  github.context.repo.repo
+
+const pull_number =
   process.env.PR_NUMBER ||
-    process.env.PLUGIN_PR_NUMBER ||
-    core.getInput('pr-number')
-)
+  process.env.PLUGIN_PR_NUMBER ||
+  github.context.payload.pull_request?.number || github.context.payload.issue?.number
+
 const message: string =
   process.env.PR_MESSAGE ||
   process.env.PLUGIN_PR_MESSAGE ||
-  core.getInput('pr-message')
+  core.getInput('preview_url')
+
+
 const githubToken: string =
   process.env.GITHUB_TOKEN ||
   process.env.PLUGIN_GITHUB_TOKEN ||
-  core.getInput('github-token')
+  core.getInput('github_token')
 
 const commitSha =
   process.env.COMMIT_SHA ||
   process.env.PLUGIN_COMMIT_SHA ||
-  core.getInput('commit-sha')
+  github.context.sha
+
+
+
 
 const octokit = new Octokit({ auth: githubToken })
+
+const isValidUrl = (url?: string): boolean => {
+  return !!url && /^(https?:\/\/)/.test(url);
+};
 
 const createMessagePreviewEnvironment = (
   commitSha?: string,
   repo?: string,
-  url?: string,
+  msg?: string,
   owner?: string
 ): string => {
-  const message = `
-✅ **Deploy Preview Environment ready!**
 
-| Name                | Link                                                                                               |
-|---------------------|----------------------------------------------------------------------------------------------------|
-| 🔨 **Latest commit** | [${commitSha}](https://github.com/${owner}/${repo}/commit/${commitSha})                                                    |
-| 😎 **Deploy Preview** | [${url}](${url})     |
-`
-  return message
-}
+  if (commitSha) {
+    if (!isValidUrl(msg)) {
+      throw new Error("Invalid URL provided for msg");
+    }
+
+    const message = `
+    ✅ **Deploy Preview Environment ready!**
+    
+    | Name                | Link                                                                                               |
+    |---------------------|----------------------------------------------------------------------------------------------------|
+    | 🔨 **Latest commit** | [${commitSha.substring(0, 7)}](https://github.com/${owner}/${repo}/commit/${commitSha.substring(0, 7)})                                                    |
+    | 😎 **Deploy Preview** | [${msg}](${msg})     |
+    `
+    return message;
+  }
+
+  return msg ?? '';
+};
 
 export async function checkAndCreateComment(
   owner: string,
@@ -75,10 +93,11 @@ export async function checkAndCreateComment(
     }
   }
   core.info(`Checking existing comments in PR #${pull_number}`)
+
   if (rocketComment && rocketComment.body) {
     const updatedBody = rocketComment.body.replace(
       /Latest commit \*\*\[.*?\]\(.*?\)\*\*/i,
-      `Latest commit **[${commitSha}](https://github.com/${owner}/${repo}/commit/${commitSha})**`
+      `Latest commit **[${commitSha.substring(0, 7)}](https://github.com/${owner}/${repo}/commit/${commitSha.substring(0, 7)})**`
     )
 
     await octokit.issues.updateComment({
@@ -105,4 +124,4 @@ export async function checkAndCreateComment(
   }
 }
 
-checkAndCreateComment(owner, repo, pull_number, message, commitSha)
+checkAndCreateComment(owner, repo, Number(pull_number), message, commitSha)

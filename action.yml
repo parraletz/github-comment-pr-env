@@ -6,21 +6,10 @@ inputs:
   github_token:
     description: "GitHub token for authentication"
     required: true
-  repo_owner:
-    description: "Repository owner"
-    required: false
-  repo_name:
-    description: "Repository name"
-    required: true
-  pr_number:
-    description: "Pull request number"
-    required: true
-  pr_message:
+  preview_url:
     description: "Preview environment message"
-    required: true
-  commit_sha:
-    description: "Commit SHA"
-    required: true
+    required: false
+
 
 runs:
   using: "node20"
